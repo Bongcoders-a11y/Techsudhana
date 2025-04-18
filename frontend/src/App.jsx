@@ -1,12 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import HomePage from "./services/api"
+import HomePage from "./pages/HomePage"
+import api from "./services/api"
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-      </Routes>
+      <div className="min-h-screen bg-gray-100">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+        </Routes>
+      </div>
     </Router>
   )
 }
