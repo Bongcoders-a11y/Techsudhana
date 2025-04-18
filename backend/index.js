@@ -1,72 +1,40 @@
-import { GoogleGenAI } from "@google/genai"
+import express from "express"
+import cors from "cors"
+import mongoose from "mongoose"
 import dotenv from "dotenv"
+import newsRoutes from "./routes/news.js"
+import voteRoutes from "./routes/votes.js"
+import feedbackRoutes from "./routes/feedback.js"
+import trendingRoutes from "./routes/trending.js"
 
 dotenv.config()
 
-const analyzeNews = async (newsText) => {
-  try {
-    const ai = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY,
-    })
+const app = express()
+const PORT = process.env.PORT || 5000
 
-    const config = {
-      responseMimeType: "text/plain",
-    }
+// Middleware
+app.use(express.json())
+app.use(
+  cors({
+    origin: "*", // During development, allow all origins
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true,
+  }),
+)
 
-    const model = "gemini-2.5-flash-preview-04-17"
+// Routes
+app.use("/api/news", newsRoutes)
+app.use("/api/votes", voteRoutes)
+app.use("/api/feedback", feedbackRoutes)
+app.use("/api/trending", trendingRoutes)
 
-    const prompt = `
-      Analyze the following news text and determine if it contains misinformation or fake news.
-      Provide a detailed analysis explaining your reasoning.
-      Also, give a percentage estimate of how likely this news is real or fake.
-      
-      News text: "${newsText}"
-      
-      Format your response as follows:
-      
-      Analysis: [Your detailed analysis]
-      Real percentage: [0-100]%
-      Fake percentage: [0-100]%
-    `
+// MongoDB Connection
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error:", err))
 
-    const contents = [
-      {
-        role: "user",
-        parts: [
-          {
-            text: prompt,
-          },
-        ],
-      },
-    ]
-
-    const response = await ai.models.generateContentStream({
-      model,
-      config,
-      contents,
-    })
-
-    let fullResponse = ""
-    for await (const chunk of response) {
-      fullResponse += chunk.text
-    }
-
-    // Extract percentages using regex
-    const realPercentageMatch = fullResponse.match(/Real percentage: (\d+)/)
-    const fakePercentageMatch = fullResponse.match(/Fake percentage: (\d+)/)
-
-    const realPercentage = realPercentageMatch ? Number.parseInt(realPercentageMatch[1]) : 50
-    const fakePercentage = fakePercentageMatch ? Number.parseInt(fakePercentageMatch[1]) : 50
-
-    return {
-      analysis: fullResponse,
-      realPercentage,
-      fakePercentage,
-    }
-  } catch (error) {
-    console.error("Error analyzing news with Gemini:", error)
-    throw new Error("Failed to analyze news")
-  }
-}
-
-export { analyzeNews }
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})

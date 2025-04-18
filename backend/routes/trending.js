@@ -1,8 +1,8 @@
 import express from "express"
-import { voteOnNews } from "../controllers/voteController.js"
+import { getTrendingNews } from "../controllers/newsController.js"
 
 const router = express.Router()
 
-router.post("/:id", voteOnNews)
+router.get("/", getTrendingNews)
 
 export default router

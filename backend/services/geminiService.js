@@ -40,6 +40,8 @@ const analyzeNews = async (newsText) => {
       },
     ]
 
+    console.log("Sending request to Gemini API...")
+
     const response = await ai.models.generateContentStream({
       model,
       config,
@@ -50,6 +52,8 @@ const analyzeNews = async (newsText) => {
     for await (const chunk of response) {
       fullResponse += chunk.text
     }
+
+    console.log("Received response from Gemini API")
 
     // Extract percentages using regex
     const realPercentageMatch = fullResponse.match(/Real percentage: (\d+)/)
@@ -65,7 +69,14 @@ const analyzeNews = async (newsText) => {
     }
   } catch (error) {
     console.error("Error analyzing news with Gemini:", error)
-    throw new Error("Failed to analyze news")
+
+    // Provide a fallback response in case of API failure
+    return {
+      analysis:
+        "Sorry, we couldn't analyze this news article at the moment. Our AI service is experiencing issues. Please try again later.",
+      realPercentage: 50,
+      fakePercentage: 50,
+    }
   }
 }
 

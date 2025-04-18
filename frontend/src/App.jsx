@@ -4,11 +4,9 @@ import HomePage from "./pages/HomePage"
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+      </Routes>
     </Router>
   )
 }

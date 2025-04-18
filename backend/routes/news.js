@@ -1,12 +1,9 @@
 import express from "express"
-import { submitNews, getNewsById, getAllNews, getTrendingNews, markAsTrending } from "../controllers/newsController.js"
+import { submitFeedback, getFeedbackByNewsId } from "../controllers/feedbackController.js"
 
 const router = express.Router()
 
-router.post("/", submitNews)
-router.get("/", getAllNews)
-router.get("/trending", getTrendingNews)
-router.get("/:id", getNewsById)
-router.patch("/:id/trending", markAsTrending)
+router.post("/", submitFeedback)
+router.get("/:newsId", getFeedbackByNewsId)
 
 export default router

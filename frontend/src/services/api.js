@@ -1,53 +1,67 @@
-import axios from "axios"
+"use client"
 
-const API_URL = "http://localhost:5000/api"
+import { useState } from "react"
+import Navbar from "../components/Navbar"
+import Footer from "../components/Footer"
+import NewsForm from "../components/NewsForm"
+import NewsAnalysis from "../components/NewsAnalysis"
+import TrendingNews from "../components/TrendingNews"
+import NewsHistory from "../components/NewsHistory"
 
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-})
+const HomePage = () => {
+  const [currentNews, setCurrentNews] = useState(null)
 
-// News API
-export const submitNewsForAnalysis = async (text) => {
-  const response = await api.post("/news", { text })
-  return response.data
+  const handleNewsSubmitted = (news) => {
+    setCurrentNews(news)
+    // Scroll to the analysis section
+    window.scrollTo({
+      top: document.getElementById("analysis-section").offsetTop - 20,
+      behavior: "smooth",
+    })
+  }
+
+  const handleSelectNews = (news) => {
+    setCurrentNews(news)
+    // Scroll to the analysis section
+    window.scrollTo({
+      top: document.getElementById("analysis-section").offsetTop - 20,
+      behavior: "smooth",
+    })
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Navbar />
+
+      <main className="flex-grow">
+        <div className="bg-indigo-700 text-white py-16">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Fake News Detector</h1>
+            <p className="text-xl md:text-2xl max-w-3xl mx-auto text-indigo-100">
+              Analyze news articles with AI and community feedback to combat misinformation
+            </p>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <NewsForm onNewsSubmitted={handleNewsSubmitted} />
+
+              {currentNews && <NewsAnalysis news={currentNews} />}
+            </div>
+
+            <div className="space-y-8">
+              <TrendingNews onSelectNews={handleSelectNews} />
+              <NewsHistory onSelectNews={handleSelectNews} />
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  )
 }
 
-export const getNewsById = async (id) => {
-  const response = await api.get(`/news/${id}`)
-  return response.data
-}
-
-export const getAllNews = async () => {
-  const response = await api.get("/news")
-  return response.data
-}
-
-export const getTrendingNews = async () => {
-  const response = await api.get("/news/trending")
-  return response.data
-}
-
-export const markAsTrending = async (id) => {
-  const response = await api.patch(`/news/${id}/trending`)
-  return response.data
-}
-
-// Vote API
-export const voteOnNews = async (id, voteType) => {
-  const response = await api.post(`/votes/${id}`, { voteType })
-  return response.data
-}
-
-// Feedback API
-export const submitFeedback = async (newsId, isUseful, comment) => {
-  const response = await api.post("/feedback", { newsId, isUseful, comment })
-  return response.data
-}
-
-export const getFeedbackByNewsId = async (newsId) => {
-  const response = await api.get(`/feedback/${newsId}`)
-  return response.data
-}
+export default HomePage
